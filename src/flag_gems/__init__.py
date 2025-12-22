@@ -28,7 +28,18 @@ def torch_ge(v):
 
 def enable(
     lib=aten_lib,
-    force_used=None,
+    force_used=[
+        "abs",
+        "add",
+        "addmm",
+        "amax",
+        "angle",
+        "any",
+        "arange",
+        "bitwise_and",
+        "bitwise_not",
+        "bitwise_or",
+    ],
     unused=None,
     registrar=registrar,
     record=False,
