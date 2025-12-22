@@ -4,7 +4,12 @@ from .backend.device import DeviceDetector
 
 class Register:
     def __init__(
-        self, config, user_unused_ops_list=None, cpp_patched_ops_list=None, lib=None
+        self,
+        config,
+        user_force_used_ops_list=None,
+        user_unused_ops_list=None,
+        cpp_patched_ops_list=None,
+        lib=None,
     ):
         # lib is a instance of torch.library.Library
         self.device = DeviceDetector()
@@ -17,6 +22,7 @@ class Register:
 
         self.all_ops = []
         self.vendor_unused_ops_list = self.get_vendor_unused_op()
+        self.force_used_ops_list = list(user_force_used_ops_list or [])
         self.unused_ops = list(user_unused_ops_list or []) + self.vendor_unused_ops_list
         self.cpp_patched_ops_list = set(cpp_patched_ops_list or [])
         self.config = config
@@ -26,6 +32,13 @@ class Register:
     def config_filter(self):
         def enabled(item):
             return len(item) < 3 or bool(item[2]())
+
+        if self.force_used_ops_list:
+            self.config = [
+                (item[0], item[1])
+                for item in self.config
+                if enabled(item) and item[1].__name__ not in self.unused_ops
+            ]
 
         self.config = [
             (item[0], item[1])
@@ -49,6 +62,7 @@ class Register:
         try:
             for key, func in self.config:
                 self.register_impl(key, func)
+                print(f"[INFO] FlagGems Register {key} {func}")
         except Exception as e:
             error.register_error(e)
 

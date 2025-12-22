@@ -28,6 +28,7 @@ def torch_ge(v):
 
 def enable(
     lib=aten_lib,
+    force_used=None,
     unused=None,
     registrar=registrar,
     record=False,
@@ -355,6 +356,7 @@ def enable(
             ("conv2d.padding", conv2d),
             ("conv3d.padding", conv3d),
         ),
+        user_force_used_ops_list=list(set(force_used or [])),
         user_unused_ops_list=list(set(unused or [])),
         cpp_patched_ops_list=list(set(aten_patch_list)),
         lib=lib,
