@@ -37,7 +37,7 @@ class Register:
             self.config = [
                 (item[0], item[1])
                 for item in self.config
-                if enabled(item) and item[1].__name__ in self.force_used_ops_list
+                if item[1].__name__ in self.force_used_ops_list
             ]
 
         self.config = [
@@ -47,8 +47,9 @@ class Register:
             and item[1].__name__ not in self.unused_ops
             and item[0] not in self.cpp_patched_ops_list
         ]
+
         for item in self.config:
-            print(f"[INFO] FlagGems {item[1].__name__} ops registered")
+            print(f"[INFO] FlagGems ops: {item[1].__name__}")
 
     def get_vendor_unused_op(self):
         if self.device.vendor != common.vendors.NVIDIA:
