@@ -30,6 +30,12 @@ def torch_ge(v):
 def enable(
     lib=aten_lib,
     force_used=[
+        # "arange", "ones", "pow_scalar", "sin", "reciprocal", "sum", "embedding",
+        # "lt", "sub", "bitwise_or_tensor", "add", "bitwise_and_tensor",
+        # "resolve_conj", "resolve_neg", "where_self", "where_self_out",
+        # "to_copy", "floor_divide", "eq_scalar", "max", "argmax", "clamp", "lt",
+        # "add_","cumsum",
+        "high_performance_ops",
         "angle",
         "bitwise_not",
         "count_nonzero",
