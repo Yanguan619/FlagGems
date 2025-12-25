@@ -3,8 +3,10 @@ import logging
 import torch
 from packaging import version
 
-from flag_gems import testing  # noqa: F401
-from flag_gems import runtime
+from flag_gems import (
+    runtime,
+    testing,  # noqa: F401
+)
 from flag_gems.config import aten_patch_list
 from flag_gems.experimental_ops import *  # noqa: F403
 from flag_gems.fused import *  # noqa: F403
@@ -27,15 +29,54 @@ def torch_ge(v):
     return version.parse(torch.__version__) >= version.parse(v)
 
 
+"""
+[DEBUG] flag_gems.ops.mul: GEMS MUL
+[DEBUG] flag_gems.ops.repeat: GEMS REPEAT
+[DEBUG] flag_gems.ops.randn: GEMS RANDN
+[DEBUG] flag_gems.ops.ge: GEMS GE SCALAR
+[DEBUG] flag_gems.runtime._ascend.ops.masked_fill: GEMS_ASCEND MASKED FILL
+[DEBUG] flag_gems.runtime._ascend.ops.index_select: GEMS_ASCEND INDEX SELECT
+[DEBUG] flag_gems.runtime._ascend.ops.mm: GEMS_ASCEND MM
+[DEBUG] flag_gems.runtime._ascend.ops.index: GEMS_ASCEND INDEX
+"""
+
+
 def enable(
     lib=aten_lib,
     force_used=[
-        # "arange", "ones", "pow_scalar", "sin", "reciprocal", "sum", "embedding",
-        # "lt", "sub", "bitwise_or_tensor", "add", "bitwise_and_tensor",
-        # "resolve_conj", "resolve_neg", "where_self", "where_self_out",
-        # "to_copy", "floor_divide", "eq_scalar", "max", "argmax", "clamp", "lt",
-        # "add_","cumsum",
-        "high_performance_ops",
+        "zeros",
+        "div",
+        "mul",
+        "repeat",
+        "randn",
+        "ge_scalar",
+        "========high_performance_ops 2========",
+        "arange",
+        "ones",
+        "pow_scalar",
+        "sin",
+        "reciprocal",
+        "sum",
+        "embedding",
+        "lt",
+        "sub",
+        "bitwise_or_tensor",
+        "add",
+        "bitwise_and_tensor",
+        "resolve_conj",
+        "resolve_neg",
+        "where_self",
+        "where_self_out",
+        "to_copy",
+        "floor_divide",
+        "eq_scalar",
+        "max",
+        "argmax",
+        "clamp",
+        "lt",
+        "add_",
+        "cumsum",
+        "========high_performance_ops========",
         "angle",
         "bitwise_not",
         "count_nonzero",
@@ -48,7 +89,7 @@ def enable(
         "diag_embed",
         "index_add",
     ],
-    unused=None,
+    unused=["to_copy", "_to_copy", "copy_", "fill_scalar_", "sum_dim", "exponential_"],
     registrar=registrar,
     record=False,
     once=False,
@@ -376,7 +417,7 @@ def enable(
             ("conv2d.padding", conv2d),
             ("conv3d.padding", conv3d),
         ),
-        user_force_used_ops_list=list(set(force_used or [])),
+        user_used_ops_list=list(set(force_used or [])),
         user_unused_ops_list=list(set(unused or [])),
         cpp_patched_ops_list=list(set(aten_patch_list)),
         lib=lib,

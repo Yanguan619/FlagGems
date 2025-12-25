@@ -6,7 +6,7 @@ class Register:
     def __init__(
         self,
         config,
-        user_force_used_ops_list: list[str] = None,
+        user_used_ops_list: list[str] | None = None,
         user_unused_ops_list=None,
         cpp_patched_ops_list=None,
         lib=None,
@@ -22,7 +22,7 @@ class Register:
 
         self.all_ops = []
         self.vendor_unused_ops_list = self.get_vendor_unused_op()
-        self.force_used_ops_list = list(user_force_used_ops_list or [])
+        self.ops_list = list(user_used_ops_list or [])
         self.unused_ops = list(user_unused_ops_list or []) + self.vendor_unused_ops_list
         self.cpp_patched_ops_list = set(cpp_patched_ops_list or [])
         self.config = config
@@ -33,11 +33,11 @@ class Register:
         def enabled(item):
             return len(item) < 3 or bool(item[2]())
 
-        if self.force_used_ops_list:
+        if self.ops_list:
             self.config = [
                 (item[0], item[1])
                 for item in self.config
-                if item[1].__name__ in self.force_used_ops_list
+                if item[1].__name__ in self.ops_list
             ]
 
         self.config = [
@@ -49,7 +49,7 @@ class Register:
         ]
 
         for item in self.config:
-            print(f"[INFO] FlagGems ops: {item[1].__name__}")
+            print(f"[INFO] FlagGems ready ops: {item[1].__name__}")
 
     def get_vendor_unused_op(self):
         if self.device.vendor != common.vendors.NVIDIA:
