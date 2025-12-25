@@ -30,10 +30,6 @@ def torch_ge(v):
 
 
 """
-[DEBUG] flag_gems.ops.mul: GEMS MUL
-[DEBUG] flag_gems.ops.repeat: GEMS REPEAT
-[DEBUG] flag_gems.ops.randn: GEMS RANDN
-[DEBUG] flag_gems.ops.ge: GEMS GE SCALAR
 [DEBUG] flag_gems.runtime._ascend.ops.masked_fill: GEMS_ASCEND MASKED FILL
 [DEBUG] flag_gems.runtime._ascend.ops.index_select: GEMS_ASCEND INDEX SELECT
 [DEBUG] flag_gems.runtime._ascend.ops.mm: GEMS_ASCEND MM
@@ -44,6 +40,9 @@ def torch_ge(v):
 def enable(
     lib=aten_lib,
     force_used=[
+        "masked_fill",
+        "mm",
+        "========high_performance_ops 3========",
         "zeros",
         "div",
         "mul",
