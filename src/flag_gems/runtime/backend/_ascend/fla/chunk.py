@@ -8,6 +8,8 @@
 # Copyright (c) 2023-2025, Songlin Yang, Yu Zhang
 # ruff: noqa: E501
 # mypy: ignore-errors
+import logging
+
 import torch
 
 from flag_gems.fused.FLA.utils import SUPPRESS_LEVEL
@@ -18,6 +20,8 @@ from .chunk_scaled_dot_kkt import chunk_scaled_dot_kkt_fwd
 from .cumsum import chunk_local_cumsum
 from .solve_tril import solve_tril
 from .wy_fast import recompute_w_u_fwd
+
+logger = logging.getLogger("flag_gems").getChild(__name__.lstrip("."))
 
 
 def chunk_gated_delta_rule_fwd(
@@ -31,6 +35,7 @@ def chunk_gated_delta_rule_fwd(
     output_final_state: bool,
     cu_seqlens: torch.LongTensor | None = None,
 ):
+    logger.debug("GEMS_ASCEND chunk_gated_delta_rule_fwd")
     g = chunk_local_cumsum(g, chunk_size=64, cu_seqlens=cu_seqlens)
     # obtain WY representation. u is actually the new v.
     A = chunk_scaled_dot_kkt_fwd(
@@ -66,4 +71,5 @@ def chunk_gated_delta_rule_fwd(
     if SUPPRESS_LEVEL < 3:
         return g, o, A, final_state, None, None, None
     elif SUPPRESS_LEVEL >= 3:
+        return g, o, A, final_state, w, h, v_new
         return g, o, A, final_state, w, h, v_new

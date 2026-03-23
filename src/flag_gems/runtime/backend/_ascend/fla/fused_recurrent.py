@@ -9,9 +9,13 @@
 # ruff: noqa: E501
 # mypy: ignore-errors
 
+import logging
+
 import torch
 import triton
 import triton.language as tl
+
+logger = logging.getLogger("flag_gems").getChild(__name__.lstrip("."))
 
 
 @triton.jit
@@ -103,9 +107,7 @@ def fused_recurrent_gated_delta_rule_fwd_kernel(
                 i_t = 0
             p_h0 = (
                 h0
-                + tl.load(ssm_state_indices + i_n * stride_indices_seq + i_t).to(
-                    tl.int64
-                )
+                + tl.load(ssm_state_indices + i_n * stride_indices_seq + i_t).to(tl.int64)
                 * stride_init_state_token
             )
         else:
@@ -164,9 +166,7 @@ def fused_recurrent_gated_delta_rule_fwd_kernel(
         if INPLACE_FINAL_STATE:
             p_ht = (
                 ht
-                + tl.load(ssm_state_indices + i_n * stride_indices_seq + i_t).to(
-                    tl.int64
-                )
+                + tl.load(ssm_state_indices + i_n * stride_indices_seq + i_t).to(tl.int64)
                 * stride_final_state_token
             )
         else:
@@ -189,6 +189,7 @@ def fused_recurrent_gated_delta_rule_fwd(
     num_accepted_tokens: torch.Tensor | None = None,
     use_qk_l2norm_in_kernel: bool = False,
 ) -> tuple[torch.Tensor, torch.Tensor]:
+    logger.debug("GEMS_ASCEND fused_recurrent_gated_delta_rule_fwd")
     B, T, H, K, V = *k.shape, v.shape[-1]
     HV = v.shape[2]
     N = B if cu_seqlens is None else len(cu_seqlens) - 1
@@ -249,4 +250,5 @@ def fused_recurrent_gated_delta_rule_fwd(
         num_stages=num_stages,
     )
     o = o.squeeze(0)
+    return o, final_state
     return o, final_state
