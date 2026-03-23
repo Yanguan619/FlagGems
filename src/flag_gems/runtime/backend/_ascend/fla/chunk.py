@@ -72,4 +72,3 @@ def chunk_gated_delta_rule_fwd(
         return g, o, A, final_state, None, None, None
     elif SUPPRESS_LEVEL >= 3:
         return g, o, A, final_state, w, h, v_new
-        return g, o, A, final_state, w, h, v_new
